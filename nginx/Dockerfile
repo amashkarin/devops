@@ -1,8 +1,10 @@
 FROM alpine:3.15.0
 LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
+
 ENV NGINX_VERSION=1.21.4
 ENV NJS_VERSION=0.7.0
 ENV PKG_RELEASE=1
+
 RUN set -x \
 && addgroup -g 101 -S nginx \
 && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
@@ -60,6 +62,49 @@ set -x \
     && tar xzvf ${NGINX_VERSION}-${PKG_RELEASE}.tar.gz \
     && cd pkg-oss-${NGINX_VERSION}-${PKG_RELEASE} \
     && cd alpine \
+    && configure \
+    --prefix=/etc/nginx \
+    --sbin-path=/usr/sbin/nginx \
+    --modules-path=/usr/lib/nginx/modules \
+    --conf-path=/etc/nginx/nginx.conf \
+    --error-log-path=/var/log/nginx/error.log \
+    --http-log-path=/var/log/nginx/access.log \
+    --pid-path=/var/run/nginx.pid \
+    --lock-path=/var/run/nginx.lock \
+    --http-client-body-temp-path=/var/cache/nginx/client_temp \
+    --http-proxy-temp-path=/var/cache/nginx/proxy_temp \
+    --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
+    --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
+    --http-scgi-temp-path=/var/cache/nginx/scgi_temp \
+    --with-perl_modules_path=/usr/lib/perl5/vendor_perl \
+    --user=nginx \
+    --group=nginx \
+    --with-compat \
+    --with-file-aio \
+    --with-threads \
+    --with-http_addition_module \
+    --with-http_auth_request_module \
+    --with-http_dav_module \
+    --with-http_flv_module \
+    --with-http_gunzip_module \
+    --with-http_gzip_static_module \
+    --with-http_mp4_module \
+    --with-http_random_index_module \
+    --with-http_realip_module \
+    --with-http_secure_link_module \
+    --with-http_slice_module \
+    --with-http_ssl_module \
+    --with-http_stub_status_module \
+    --with-http_sub_module \
+    --with-http_v2_module \
+    --with-mail \
+    --with-mail_ssl_module \
+    --with-stream \
+    --with-stream_realip_module \
+    --with-stream_ssl_module \
+    --with-stream_ssl_preread_module \
+    --with-cc-opt='-Os -fomit-frame-pointer -g' \
+    --with-ld-opt=-Wl,--as-needed,-O1,--sort-common \
     && make all \
     && apk index -o ${tempDir}/packages/alpine/${apkArch}/APKINDEX.tar.gz ${tempDir}/packages/alpine/${apkArch}/*.apk \
     && abuild-sign -k ${tempDir}/.abuild/abuild-key.rsa ${tempDir}/packages/alpine/${apkArch}/APKINDEX.tar.gz \
@@ -88,6 +133,7 @@ set -x \
 && ln -sf /dev/stdout /var/log/nginx/access.log \
 && ln -sf /dev/stderr /var/log/nginx/error.log \
 && mkdir /docker-entrypoint.d
+
 COPY docker-entrypoint.sh /
 COPY docker-entrypoint.d/10-listen-on-ipv6-by-default.sh /docker-entrypoint.d/
 COPY docker-entrypoint.d/20-envsubst-on-templates.sh /docker-entrypoint.d/
