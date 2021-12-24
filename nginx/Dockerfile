@@ -15,6 +15,7 @@ RUN set -x \
     nginx-module-geoip=${NGINX_VERSION}-r${PKG_RELEASE} \
     nginx-module-image-filter=${NGINX_VERSION}-r${PKG_RELEASE} \
     nginx-module-njs=${NGINX_VERSION}.${NJS_VERSION}-r${PKG_RELEASE} \
+#    nginx-module-perl=${NGINX_VERSION}-r${PKG_RELEASE} \
    " \
 && apk add --no-cache --virtual .checksum-deps \
     openssl \
@@ -62,6 +63,7 @@ set -x \
     && tar xzvf ${NGINX_VERSION}-${PKG_RELEASE}.tar.gz \
     && cd pkg-oss-${NGINX_VERSION}-${PKG_RELEASE} \
     && cd alpine \
+#    https://nginx.org/ru/docs/configure.html \
     && configure \
     --prefix=/etc/nginx \
     --sbin-path=/usr/sbin/nginx \
@@ -86,6 +88,7 @@ set -x \
     --with-http_auth_request_module \
     --with-http_dav_module \
     --with-http_flv_module \
+    --with-http_geoip_module \
     --with-http_gunzip_module \
     --with-http_gzip_static_module \
     --with-http_mp4_module \
@@ -99,7 +102,9 @@ set -x \
     --with-http_v2_module \
     --with-mail \
     --with-mail_ssl_module \
+#    --with-http_perl_module \
     --with-stream \
+    --with-stream_geoip_module \
     --with-stream_realip_module \
     --with-stream_ssl_module \
     --with-stream_ssl_preread_module \
