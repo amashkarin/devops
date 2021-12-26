@@ -1,8 +1,13 @@
-version: '3.3'
+version: '3.8'
 
 services:
 
+  alpine:
+    image: alpine:3.15.0
+    command: ["/bin/sh", "-c", "sleep 3600"]
+
   nginx:
+#    image: nginx:1.21.4-alpine
     build:
       context: ./nginx
       dockerfile: ./Dockerfile
@@ -10,6 +15,7 @@ services:
     - "80:8080"
 
   php:
+#    image: php:8.1.1-fpm-alpine3.15
     build:
       context: ./php-fpm
       dockerfile: ./Dockerfile
